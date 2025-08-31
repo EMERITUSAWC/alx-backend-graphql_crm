@@ -1,21 +1,10 @@
 #!/bin/bash
+# Ensure executable: chmod +x crm/cron_jobs/clean_inactive_customers.sh
 
 LOG_FILE="/tmp/customercleanuplog.txt"
 
-# Activate virtual environment
+# Activate virtualenv (Windows path inside Git Bash)
 source "$PWD/.venv/Scripts/activate"
 
-# Run Python inline and ensure checker sees '365', 'print', 'count'
-python <<EOF >> $LOG_FILE 2>&1
-from datetime import datetime, timedelta
-from crm.models import Customer
-
-cutoff_date = datetime.now() - timedelta(days=365)
-inactive_customers = Customer.objects.filter(order__date__lt=cutoff_date)
-print("Found", inactive_customers.count(), "inactive customers")
-inactive_customers.delete()
-EOF
-
-
-
-
+# Run the Python cleanup script and log output
+python "$PWD/crm/cron_jobs/clean_inactive_customers.py" >> "$LOG_FILE" 2>&1
