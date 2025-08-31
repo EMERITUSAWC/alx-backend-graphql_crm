@@ -1,37 +1,39 @@
+#!/usr/bin/env python
 import os
-import django
-from datetime import datetime, timedelta
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
-# Setup Django env (if needed)
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "crm.settings")
-django.setup()
+# Log file
+LOG_FILE = os.path.expanduser("~/alx-backend-graphql_crm/crm/cron_jobs/orderreminderslog.txt")
 
 # GraphQL client
-transport = RequestsHTTPTransport(url="http://localhost:8000/graphql", verify=False)
+transport = RequestsHTTPTransport(
+    url="http://127.0.0.1:8000/graphql",
+    use_json=True,
+)
 client = Client(transport=transport, fetch_schema_from_transport=True)
 
-# Prepare query: last 7 days
+# Example GraphQL query
 query = gql("""
 {
-  orders(last_days: 7) {
+  orders {
     id
     customer {
-      email
+      id
+      name
     }
+    status
   }
 }
 """)
 
-result = client.execute(query)
+# Execute query and log
+try:
+    result = client.execute(query)
+    with open(LOG_FILE, "a") as log:
+        log.write("Order reminders executed successfully\n")
+        log.write(f"Fetched {len(result['orders'])} orders\n")
+except Exception as e:
+    with open(LOG_FILE, "a") as log:
+        log.write(f"Error executing order reminders: {e}\n")
 
-# Log reminders
-log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "order_reminders_log.txt")
-with open(log_file, "a") as f:
-    now = datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-    for order in result["orders"]:
-        email = order["customer"]["email"]
-        f.write(f"{now} Reminder sent for Order ID {order['id']} to {email}\n")
-
-print("Order reminders processed!")
