@@ -1,31 +1,15 @@
-#!/usr/bin/env python3
-import datetime
-try:
-    from gql import gql, Client
-    from gql.transport.requests import RequestsHTTPTransport
-except ImportError:
-    pass  # Optional: Only needed if you query the GraphQL hello field
+import os
+from datetime import datetime
 
-# Log file path that the checker expects
-LOG_FILE = "/tmp/crm_heartbeat_log.txt"
+# Windows-friendly log file path in project directory
+LOG_FILE = os.path.join(os.getcwd(), "crmheartbeatlog.txt")
 
-def logcrmheartbeat():
-    """Logs a heartbeat message with timestamp to /tmp/crm_heartbeat_log.txt"""
+def log_crm_heartbeat():
+    """Logs a CRM heartbeat timestamp."""
     with open(LOG_FILE, "a") as f:
-        f.write(f"CRM heartbeat at {datetime.datetime.now()}\n")
+        f.write(f"CRM heartbeat at {datetime.now()}\n")
 
-# Optional: Query GraphQL hello field
-def check_graphql_hello():
-    transport = RequestsHTTPTransport(url="http://127.0.0.1:8000/graphql", verify=True)
-    client = Client(transport=transport, fetch_schema_from_transport=True)
-    query = gql("{ hello }")
-    try:
-        result = client.execute(query)
-        print(result)
-    except Exception as e:
-        print(f"GraphQL hello query failed: {e}")
+# Optional: you can add GraphQL hello check here if needed
 
 if __name__ == "__main__":
-    logcrmheartbeat()
-    # Uncomment below if you want to query the GraphQL hello field
-    # check_graphql_hello()
+    log_crm_heartbeat()
