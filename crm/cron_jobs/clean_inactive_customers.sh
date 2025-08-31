@@ -1,6 +1,11 @@
 #!/bin/bash
-# A simple cron test script for the CRM project
+#!/bin/bash
+# Activate virtual environment
+source ~/alx-backend-graphql_crm/.venv/Scripts/activate
 
-LOGFILE="$(dirname "$0")/../../clean_inactive_customers.log"
-echo "Cron ran at: $(date)" >> "$LOGFILE"
+# Navigate to Django project
+cd ~/alx-backend-graphql_crm/
+
+# Run the Django script
+python manage.py runscript clean_inactive_customers >> ~/alx-backend-graphql_crm/cronjobs/cleaninactivecustomers.log 2>&1
 
