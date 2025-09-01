@@ -1,32 +1,33 @@
-import os
+# crm/cron.py
 import datetime
+import requests
 
-# Use a project-relative folder for logs
-LOG_FILE = os.path.join(os.getcwd(), "crmheartbeatlog.txt")
-os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+LOG_FILE = '/tmp/crm_heartbeat_log.txt'
 
 def log_crm_heartbeat():
-    now = datetime.datetime.now().isoformat()
-    log_line = f"Heartbeat at {now}\n"
+    timestamp = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+    message = f"{timestamp} CRM is alive\n"
 
-    # Optional GraphQL query
+    with open(LOG_FILE, 'a') as f:
+        f.write(message)
+
     try:
-        from gql import gql, Client
-        from gql.transport.requests import RequestsHTTPTransport
-
-        transport = RequestsHTTPTransport(url="http://127.0.0.1:8000/graphql", verify=True)
-        client = Client(transport=transport, fetch_schema_from_transport=True)
-        query = gql("{ hello }")
-        result = client.execute(query)
-        log_line += f"GraphQL hello: {result['hello']}\n"
+        response = requests.post(
+            'http://localhost:8000/graphql/',
+            json={'query': '{ hello }'},
+            timeout=5
+        )
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("data", {}).get("hello") == "Hello world":
+                status_msg = f"{timestamp} GraphQL: OK\n"
+            else:
+                status_msg = f"{timestamp} GraphQL: Unexpected response\n"
+        else:
+            status_msg = f"{timestamp} GraphQL: Failed (HTTP {response.status_code})\n"
     except Exception as e:
-        log_line += f"GraphQL query error: {e}\n"
+        error_time = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
+        status_msg = f"{error_time} GraphQL: Error - {str(e)}\n"
 
-    with open(LOG_FILE, "a") as f:
-        f.write(log_line)
-
-if __name__ == "__main__":
-    log_crm_heartbeat()
-
-
-
+    with open(LOG_FILE, 'a') as f:
+        f.write(status_msg)

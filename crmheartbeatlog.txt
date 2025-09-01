@@ -1,2 +1,0 @@
-CRM Heartbeat at 2025-08-31 20:02:44.561246
-GraphQL query failed: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /graphql (Caused by ResponseError('too many 500 error responses'))
