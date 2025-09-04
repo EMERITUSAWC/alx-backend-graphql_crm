@@ -1,0 +1,8 @@
+CRM Heartbeat at 2025-08-31 20:02:44.561246
+GraphQL query failed: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /graphql (Caused by ResponseError('too many 500 error responses'))
+Heartbeat at 2025-09-01T11:09:12.558277
+GraphQL query error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fbea7383e00>: Failed to establish a new connection: [Errno 111] Connection refused'))
+Heartbeat at 2025-09-01T11:23:33.356755
+GraphQL query error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7f0b4e1d4710>: Failed to establish a new connection: [Errno 111] Connection refused'))
+Heartbeat at 2025-09-01T12:06:33.949492
+GraphQL query error: HTTPConnectionPool(host='127.0.0.1', port=8000): Max retries exceeded with url: /graphql (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x7fecc678dee0>: Failed to establish a new connection: [Errno 111] Connection refused'))

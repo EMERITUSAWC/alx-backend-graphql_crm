@@ -1,33 +1,27 @@
-# crm/cron.py
-import datetime
-import requests
+import logging
+from .models import Product
 
-LOG_FILE = '/tmp/crm_heartbeat_log.txt'
+# Setup logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="/tmp/lowstockupdates_log.txt",
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
-def log_crm_heartbeat():
-    timestamp = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-    message = f"{timestamp} CRM is alive\n"
 
-    with open(LOG_FILE, 'a') as f:
-        f.write(message)
+def updatelowstock():
+    """
+    Cron job to check and update low stock products
+    """
+    threshold = 5
+    low_stock_products = Product.objects.filter(stock__lt=threshold)
+    count = low_stock_products.count()
 
-    try:
-        response = requests.post(
-            'http://localhost:8000/graphql/',
-            json={'query': '{ hello }'},
-            timeout=5
-        )
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("data", {}).get("hello") == "Hello world":
-                status_msg = f"{timestamp} GraphQL: OK\n"
-            else:
-                status_msg = f"{timestamp} GraphQL: Unexpected response\n"
-        else:
-            status_msg = f"{timestamp} GraphQL: Failed (HTTP {response.status_code})\n"
-    except Exception as e:
-        error_time = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
-        status_msg = f"{error_time} GraphQL: Error - {str(e)}\n"
+    for product in low_stock_products:
+        product.stock = threshold
+        product.save()
+        logger.info(f"[CRON] Updated stock for product {product.name} (ID: {product.id}) to {threshold}")
 
-    with open(LOG_FILE, 'a') as f:
-        f.write(status_msg)
+    logger.info(f"[CRON] Total products updated: {count}")
+    return count
